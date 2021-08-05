@@ -1,13 +1,18 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text } from 'react-native';
-import PdaScan from 'react-native-pda-scan';
+import { StyleSheet, View, Text, NativeModules, NativeEventEmitter } from 'react-native';
+import PdaScan, { } from 'react-native-pda-scan';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
+  const [result, setResult] = React.useState<string | undefined>("abc");
 
   React.useEffect(() => {
-    PdaScan.multiply(3, 7).then(setResult);
+    const eventEmitter = new NativeEventEmitter(NativeModules.PdaScan);
+    const listener = eventEmitter.addListener('onScanReceive', (data) => {
+      setResult(data.scanCode);
+    })
+
+    return listener.remove();
   }, []);
 
   return (
