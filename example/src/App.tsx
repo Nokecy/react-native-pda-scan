@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text, NativeModules, NativeEventEmitter } from 'react-native';
-import PdaScan, { } from 'react-native-pda-scan';
 
 export default function App() {
   const [result, setResult] = React.useState<string | undefined>("abc");
