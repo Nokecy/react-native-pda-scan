@@ -7730,6 +7730,11 @@ react-native-builder-bob@^0.18.0:
   optionalDependencies:
     jetifier "^1.6.6"
 
+react-native-honeywell-scanner-v2@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/react-native-honeywell-scanner-v2/download/react-native-honeywell-scanner-v2-1.0.2.tgz#8715c651d0aa0a6d223781b85e044189558a913a"
+  integrity sha512-p0lHESvS0S7GrwFRd1KGqqpFru2VssciR3QXhJR9+QCScLBmnPvj/CQ10rNmUrlMLERwiIMxyX1tPyWi0F97xg==
+
 react-native@0.63.4:
   version "0.63.4"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.63.4.tgz#2210fdd404c94a5fa6b423c6de86f8e48810ec36"
