@@ -1,17 +1,22 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text, NativeModules, NativeEventEmitter } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
+import { startReader, stopReader } from '@nokecy/react-native-pda-scan';
 
 export default function App() {
   const [result, setResult] = React.useState<string | undefined>("abc");
 
   React.useEffect(() => {
-    const eventEmitter = new NativeEventEmitter(NativeModules.PdaScan);
-    const listener = eventEmitter.addListener('onScanReceive', (data) => {
-      setResult(data.scanCode);
-    })
+    stopReader();
 
-    return listener.remove();
+    startReader((data) => {
+      console.log("收到数据", data)
+      setResult(data);
+    });
+
+    return () => {
+      stopReader();
+    }
   }, []);
 
   return (
