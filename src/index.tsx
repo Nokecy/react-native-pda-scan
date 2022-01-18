@@ -2,30 +2,36 @@ import { DeviceEventEmitter } from 'react-native';
 import HoneywellScanner from 'react-native-honeywell-scanner-v2';
 
 
-const startReader = (fn: (receivedData: any) => void) => {
+const startReader = () => {
     if (HoneywellScanner.isCompatible) {
-        HoneywellScanner.startReader().then((claimed: any) => {
+        return HoneywellScanner.startReader().then((claimed: any) => {
             console.log(claimed ? 'Barcode reader is claimed' : 'Barcode reader is busy');
-
-            HoneywellScanner.onBarcodeReadSuccess((event: any) => {
-                console.log('Received data', event.data);
-                DeviceEventEmitter.emit('onScanReceive', event.data);
-            });
         });
     }
-
-    return DeviceEventEmitter.addListener('onScanReceive', fn);
 }
 
 const stopReader = () => {
     if (HoneywellScanner.isCompatible) {
-        HoneywellScanner.stopReader().then(() => {
-            console.log("Freedom!!");
-            HoneywellScanner.offBarcodeReadSuccess();
+        return HoneywellScanner.stopReader();
+    }
+}
+
+const addListener = (fn: (receivedData: any) => void) => {
+
+    if (HoneywellScanner.isCompatible) {
+        HoneywellScanner.onBarcodeReadSuccess((event: any) => {
+            DeviceEventEmitter.emit('onScanReceive', event.data);
         });
     }
 
+    DeviceEventEmitter.addListener('onScanReceive', fn);
+}
+
+const removeListener = () => {
+    if (HoneywellScanner.isCompatible) {
+        HoneywellScanner.offBarcodeReadSuccess();
+    }
     return DeviceEventEmitter.removeAllListeners('onScanReceive');
 }
 
-export { startReader, stopReader }
+export { startReader, stopReader, addListener, removeListener }
