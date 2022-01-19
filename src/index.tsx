@@ -20,7 +20,7 @@ const addListener = (fn: (receivedData: any) => void) => {
 
     if (HoneywellScanner.isCompatible) {
         HoneywellScanner.onBarcodeReadSuccess((event: any) => {
-            DeviceEventEmitter.emit('onScanReceive', event.data);
+            DeviceEventEmitter.emit('onScanReceive', { scanCode: event.data });
         });
     }
 
