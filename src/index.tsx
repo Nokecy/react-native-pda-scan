@@ -1,35 +1,46 @@
 import { DeviceEventEmitter } from 'react-native';
-import HoneywellScanner from 'react-native-honeywell-scanner-v2';
-
+import { Platform } from 'react-native';
 
 const startReader = () => {
-    if (HoneywellScanner.isCompatible) {
-        return HoneywellScanner.startReader().then((claimed: any) => {
-            console.log(claimed ? 'Barcode reader is claimed' : 'Barcode reader is busy');
-        });
+    if (Platform.OS === "android") {
+        const HoneywellScanner = require("react-native-honeywell-scanner-v2");
+
+        if (HoneywellScanner.isCompatible) {
+            return HoneywellScanner.startReader().then((claimed: any) => {
+                console.log(claimed ? 'Barcode reader is claimed' : 'Barcode reader is busy');
+            });
+        }
     }
 }
 
 const stopReader = () => {
-    if (HoneywellScanner.isCompatible) {
-        return HoneywellScanner.stopReader();
+    if (Platform.OS === "android") {
+        const HoneywellScanner = require("react-native-honeywell-scanner-v2");
+        if (HoneywellScanner.isCompatible) {
+            return HoneywellScanner.stopReader();
+        }
     }
 }
 
 const addListener = (fn: (receivedData: any) => void) => {
+    if (Platform.OS === "android") {
+        const HoneywellScanner = require("react-native-honeywell-scanner-v2");
 
-    if (HoneywellScanner.isCompatible) {
-        HoneywellScanner.onBarcodeReadSuccess((event: any) => {
-            DeviceEventEmitter.emit('onScanReceive', { scanCode: event.data });
-        });
+        if (HoneywellScanner.isCompatible) {
+            HoneywellScanner.onBarcodeReadSuccess((event: any) => {
+                DeviceEventEmitter.emit('onScanReceive', { scanCode: event.data });
+            });
+        }
     }
-
     DeviceEventEmitter.addListener('onScanReceive', fn);
 }
 
 const removeListener = () => {
-    if (HoneywellScanner.isCompatible) {
-        HoneywellScanner.offBarcodeReadSuccess();
+    if (Platform.OS === "android") {
+        const HoneywellScanner = require("react-native-honeywell-scanner-v2");
+        if (HoneywellScanner.isCompatible) {
+            HoneywellScanner.offBarcodeReadSuccess();
+        }
     }
     return DeviceEventEmitter.removeAllListeners('onScanReceive');
 }
