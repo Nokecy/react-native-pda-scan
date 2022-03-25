@@ -1,6 +1,6 @@
 {
   "name": "@nokecy/react-native-pda-scan",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "pda 扫描模块",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -75,7 +75,8 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-honeywell-scanner-v2": "1.0.2"
   },
   "jest": {
     "preset": "react-native",

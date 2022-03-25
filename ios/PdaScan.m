@@ -1,9 +1,13 @@
 #import <React/RCTBridgeModule.h>
+#import "PdaScan.h"
 
-@interface RCT_EXTERN_MODULE(PdaScan, NSObject)
+@implementation PdaScan
 
-RCT_EXTERN_METHOD(multiply:(float)a withB:(float)b
-                 withResolver:(RCTPromiseResolveBlock)resolve
-                 withRejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_MODULE();
+
++(BOOL)requiresMainQueueSetup
+{
+  return NO;
+}
 
 @end
