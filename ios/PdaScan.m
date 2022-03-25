@@ -9,5 +9,4 @@ RCT_EXPORT_MODULE();
 {
   return NO;
 }
-
 @end
