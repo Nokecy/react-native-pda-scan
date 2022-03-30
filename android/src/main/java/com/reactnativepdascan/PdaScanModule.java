@@ -24,7 +24,9 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 public class PdaScanModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     public static final String NAME = "PdaScan";
     public static final String barcodeName = "android.scanservice.action.UPLOAD_BARCODE_DATA";
-    private ReactApplicationContext mContext;
+    public static final String nlscanBarcodeName = "nlscan.action.SCANNER_RESULT";
+
+  private ReactApplicationContext mContext;
 
     public PdaScanModule(ReactApplicationContext reactContext) {
       super(reactContext);
@@ -51,12 +53,13 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
     @Override
     public void onHostDestroy() {
       mContext.unregisterReceiver(mHeadsetPlugReceiver);
+      mContext.unregisterReceiver(nlscanReceiver);
     }
 
     private void registerBroadcastReceiver() {
-      IntentFilter filter = new IntentFilter();
-      filter.addAction(barcodeName);
-      mContext.registerReceiver(mHeadsetPlugReceiver, filter);
+      mContext.registerReceiver(mHeadsetPlugReceiver, new IntentFilter(barcodeName));
+
+      mContext.registerReceiver(nlscanReceiver, new IntentFilter(nlscanBarcodeName));
     }
 
     private final BroadcastReceiver mHeadsetPlugReceiver = new BroadcastReceiver() {
@@ -69,6 +72,29 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
           WritableMap params = Arguments.createMap();
           params.putString("scanCode", scanCode);
           sendEvent(mContext, "onScanReceive", params);
+        }
+      }
+    };
+
+    //新大陆扫描广播
+    private final BroadcastReceiver nlscanReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if (intent.getAction().equals(nlscanBarcodeName)) {
+
+          final String scanResult_1 = intent.getStringExtra("SCAN_BARCODE1");
+          final String scanResult_2 = intent.getStringExtra("SCAN_BARCODE2");
+          final int barcodeType = intent.getIntExtra("SCAN_BARCODE_TYPE", -1); // -1:unknown
+          final String scanStatus = intent.getStringExtra("SCAN_STATE");
+          if ("ok".equals(scanStatus)) {
+            String scanCode = intent.getStringExtra(scanResult_1);
+            Toast.makeText(mContext, scanCode, Toast.LENGTH_SHORT).show();
+
+            WritableMap params = Arguments.createMap();
+            params.putString("scanCode", scanCode);
+            sendEvent(mContext, "onScanReceive", params);
+          }
+          
         }
       }
     };
