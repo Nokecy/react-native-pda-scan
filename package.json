@@ -1,6 +1,6 @@
 {
   "name": "@nokecy/react-native-pda-scan",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "pda 扫描模块",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
