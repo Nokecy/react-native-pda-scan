@@ -93,14 +93,14 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
           final int barcodeType = intent.getIntExtra("SCAN_BARCODE_TYPE", -1); // -1:unknown
           final String scanStatus = intent.getStringExtra("SCAN_STATE");
           if ("ok".equals(scanStatus)) {
-            String scanCode = intent.getStringExtra(scanResult_1);
+            String scanCode = scanResult_1;
             Toast.makeText(mContext, scanCode, Toast.LENGTH_SHORT).show();
 
             WritableMap params = Arguments.createMap();
             params.putString("scanCode", scanCode);
             sendEvent(mContext, "onScanReceive", params);
           }
-          
+
         }
       }
     };
