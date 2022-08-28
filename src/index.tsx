@@ -1,5 +1,6 @@
-import { DeviceEventEmitter } from 'react-native';
+import { DeviceEventEmitter, NativeModules } from 'react-native';
 import { Platform } from 'react-native';
+const { PdaScan } = NativeModules;
 
 const startReader = () => {
     if (Platform.OS === "android") {
@@ -20,6 +21,10 @@ const stopReader = () => {
             return HoneywellScanner.stopReader();
         }
     }
+}
+
+const setScanSize = (scanSize: number, scanLen: number) => {
+    PdaScan.setScanSize(scanSize, scanLen)
 }
 
 const addListener = (fn: (receivedData: any) => void) => {
@@ -45,4 +50,4 @@ const removeListener = () => {
     return DeviceEventEmitter.removeAllListeners('onScanReceive');
 }
 
-export { startReader, stopReader, addListener, removeListener }
+export { startReader, stopReader, addListener, removeListener, setScanSize }

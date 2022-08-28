@@ -1,12 +1,15 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
-import { startReader, stopReader } from '@nokecy/react-native-pda-scan';
+import { startReader, stopReader, setScanSize } from '@nokecy/react-native-pda-scan';
 
 export default function App() {
   const [result, setResult] = React.useState<string | undefined>("abc");
 
   React.useEffect(() => {
+
+    setScanSize(2,12)
+
     stopReader();
 
     startReader((data) => {
