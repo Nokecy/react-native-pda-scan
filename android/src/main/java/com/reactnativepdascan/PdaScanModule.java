@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +23,11 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.keyence.autoid.sdk.SdkStatus;
+import com.keyence.autoid.sdk.scan.DecodeResult;
+import com.keyence.autoid.sdk.scan.ScanManager;
+import com.keyence.autoid.sdk.scan.scanparams.ScanParams;
+import com.keyence.autoid.sdk.scan.scanparams.scanParams.Collection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +39,10 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
     public static final String nlscanBarcodeName = "nlscan.action.SCANNER_RESULT";
     public static final String ldBarcodeName = "com.rfid.SCAN";
     public static final String ldStopBarcodeName = "com.rfid.STOP_SCAN";
+    private ScanManager mScanManager;
+
+    protected @Nullable
+    ScanManager.DataListener mScanDataListener;
 
     //扫描数量
     public int m_scanSize = 1;
@@ -49,6 +60,45 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
       mContext.sendBroadcast(intent);
 
       registerBroadcastReceiver();
+
+      //创建 ScanManager 类的实例
+      mScanManager = ScanManager.createScanManager(this.getReactApplicationContext());
+
+      mScanDataListener = new ScanManager.DataListener() {
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public void onDataReceived(DecodeResult decodeResult) {
+          //取得读码结果
+          DecodeResult.Result result = decodeResult.getResult();
+          //取得已读取的代码类别
+          String codeType = decodeResult.getCodeType();
+          //取得已读取的数据列表
+          List<String> datas = decodeResult.getDataList();
+          //取得已读取的数据
+          String data = decodeResult.getData();
+
+          if (result == DecodeResult.Result.SUCCESS){
+            String dataStr = String.join(" ", datas);
+            Toast.makeText(mContext, dataStr, Toast.LENGTH_SHORT).show();
+            WritableMap params = Arguments.createMap();
+            params.putString("scanCode", dataStr);
+            sendEvent(mContext, "onScanReceive", params);
+
+            //重置参数
+            setScanSize(1,0);
+          }
+        }
+      };
+
+      new Thread(new Runnable() {
+        @Override
+        public void run() {
+          Looper.prepare();
+          //创建读码事件接收监听者
+          mScanManager.addDataListener(mScanDataListener);
+          Looper.loop();
+        }
+      }).start();//启动线程
     }
 
     @Override
@@ -71,6 +121,17 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
     public void setScanSize(int scanSize,int scanLen) {
       m_scanSize = scanSize;
       m_scanLen = scanLen;
+
+      //定义存储代码类别的变量
+      ScanParams scanParams = new ScanParams();
+      //取得当前的设置值
+      SdkStatus status = mScanManager.getConfig(scanParams);
+      if (status == SdkStatus.SUCCESS){
+        scanParams.collection.method = Collection.Method.ACCUMULATE;
+        scanParams.collection.codeCountAccumulate = scanSize;
+        //反映设置值。
+        status = mScanManager.setConfig(scanParams);
+      }
     }
 
     @Override
@@ -78,6 +139,11 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
       mContext.unregisterReceiver(mHeadsetPlugReceiver);
       mContext.unregisterReceiver(nlscanReceiver);
       mContext.unregisterReceiver(ldcanReceiver);
+
+      //舍弃 ScanManager 类的实例
+      mScanManager.removeDataListener(mScanDataListener);
+      //舍弃 ScanManager 类的实例，释放资源
+      mScanManager.releaseScanManager();
     }
 
     private void registerBroadcastReceiver() {
