@@ -39,6 +39,7 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
     public static final String nlscanBarcodeName = "nlscan.action.SCANNER_RESULT";
     public static final String ldBarcodeName = "com.rfid.SCAN";
     public static final String ldStopBarcodeName = "com.rfid.STOP_SCAN";
+    public static final String ldSCANBarcodeName = "com.rfid.SCAN_CMD";
     private ScanManager mScanManager;
 
     protected @Nullable
@@ -46,7 +47,8 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
 
     //扫描数量
     public int m_scanSize = 1;
-    public int m_scanLen = 0;
+  public int m_scanLen = 0;
+  public boolean m_startScan = false;
     public List<String> scanData = new ArrayList<String>();
     private final ReactApplicationContext mContext;
 
@@ -154,6 +156,9 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
       mContext.registerReceiver(ldcanReceiver, new IntentFilter(ldBarcodeName));
 
       mContext.registerReceiver(ldcanReceiver, new IntentFilter(ldStopBarcodeName));
+
+      mContext.registerReceiver(ldcanReceiver, new IntentFilter(ldSCANBarcodeName));
+
     }
 
     private final BroadcastReceiver mHeadsetPlugReceiver = new BroadcastReceiver() {
@@ -197,35 +202,44 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
       @RequiresApi(api = Build.VERSION_CODES.O)
       @Override
       public void onReceive(Context context, Intent intent) {
+
+        if (intent.getAction().equals(ldSCANBarcodeName)){
+          m_startScan = true;
+        }
+
         if (intent.getAction().equals(ldBarcodeName)) {
           final String scanResult_1 = intent.getStringExtra("scannerdata");
           String scanCode = scanResult_1;
 
-          if (m_scanLen != 0 && m_scanLen != scanCode.length()){
+          if ((m_scanLen != 0 && m_scanLen != scanCode.length()) ||
+                (scanData.size() == m_scanSize&&m_scanSize!=1)){
             return;
           }
 
           if (!scanData.contains(scanCode)){
             scanData.add(scanCode);
           }
-          if (scanData.size() == m_scanSize) {
+          if (scanData.size() == m_scanSize && m_startScan) {
             Intent broadIntent = new Intent();
             broadIntent.setAction(ldStopBarcodeName);
             context.sendBroadcast(broadIntent);
+            m_startScan = false;
           }
         }
 
         if (intent.getAction().equals(ldStopBarcodeName)) {
+          if (scanData.size() != m_scanSize) {
+            //重置参数
+            scanData.clear();
+            return;
+          }
+
           String data = String.join(" ", scanData);
           Toast.makeText(mContext, data, Toast.LENGTH_SHORT).show();
 
           WritableMap params = Arguments.createMap();
           params.putString("scanCode", data);
           sendEvent(mContext, "onScanReceive", params);
-
-          //重置参数
-          scanData.clear();
-          m_scanSize = 1;
         }
       }
     };

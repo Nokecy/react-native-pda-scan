@@ -8,7 +8,7 @@ export default function App() {
 
   React.useEffect(() => {
 
-    setScanSize(2,12)
+    setScanSize(2,8)
 
     stopReader();
 
