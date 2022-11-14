@@ -18,7 +18,7 @@ def safeExtGet(prop, fallback) {
 }
 
 android {
-    compileSdkVersion safeExtGet('PdaScan_compileSdkVersion', 29)
+    compileSdkVersion safeExtGet('PdaScan_compileSdkVersion', 31)
     buildToolsVersion safeExtGet('PdaScan_buildToolsVersion', '29.0.2')
     defaultConfig {
         minSdkVersion safeExtGet('PdaScan_minSdkVersion', 16)
