@@ -30,9 +30,10 @@ public class PdaScanModule extends ReactContextBaseJavaModule implements Lifecyc
       super(reactContext);
       mContext = reactContext;
 
-      //新大陆广播模式 broadcast
+      //设置直接填充模式
       Intent intent = new Intent ("ACTION_BAR_SCANCFG");
-      intent.putExtra("EXTRA_SCAN_MODE", 3);
+      intent.putExtra("EXTRA_SCAN_MODE", 1);
+      intent.putExtra("EXTRA_SCAN_AUTOENT", 1);
       mContext.sendBroadcast(intent);
 
       registerBroadcastReceiver();
